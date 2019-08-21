@@ -1,0 +1,65 @@
+﻿- SE DESTINAZIONE è DOCUMENTI, CLEAR FOLDER CANCELLA TUTTO!!!
+* - lettura argomenti riga di comando
+* - LOG
+
+INIZIA COMPITO (opzione: assignmentMode=start)   
+	*- verifica singleton 
+	*- Verifica account (e termina se non comp1, comp2)
+	*- Config: legge file di configurazione ( o default)	
+	*- TaskManager: ottiene l'elenco delle cartelle progetto (Se nessuna: TERMINA!!)
+	*- Verifica se compito è già stato iniziato e chiede conferma a UI
+	   (usa opzione in config per stabilire se eseguire il check in fase di sviluppo)
+	*- UI: chiede all'utente di scegliere nome e selezionare cartella progetto (se più di una) (Se annulla: termina)
+	   (verifica validità nome... impedisce anche spazi)
+
+Modifica client: TaskManager.CopyOnClient()  
+	- termina explorer (implica chiusura finestre aperte)
+	*[obsoleto]- Chiudere eventuale finestra con stesso nome di cartella copiata (altrimenti da errore cancellazione)
+	*- Chiudere tutte applicazioni con finestra:
+	     (?? chiusura personalizzata: devenv, AcroRd32, MicrosoftEdge, chrome, soffice)
+		 //(attenzione: tra i processi con finestra c'è anche "ShellExperienceHost" ??)
+	*- TaskManager: elimina cartelle specificate in preclearfolders
+	*- Svuota il cestino
+	*- Copia cartella progetto (col nome scelto dall'utente)
+	*- Copia se stesso  in TEMP
+	*- Copia file configurazione in TEMP (modifica configurazione!)
+	*- Copia link a se stesso (ConsegnaCompito.lnk)	
+	*- Esegue comandi open (comando open automatico su file compito.pdf  (acrobat reader?  o AcroRd32.exe)
+	*- Apri finestra progetto 	
+	
+	- ?? Esegue solution 
+	*- TaskCompleted: UI->se errore, invita studente a chiamare il professore.
+
+CONSEGNA COMPITO (opzione: assignmentMode=complete)   
+Modifica cartella di destinazione:TaskManager.CopyOnShared	
+	*- verifica singleton
+	*- meccanismo di salvaguardia verso esecuzione anticipata (tipo se sono passati solo XX minuti da inizio compito)
+	*- UI: chiede allo studente se vuole continuare   
+	*- Config: legge file di configurazione ( o default)
+	
+	- Se TARGET ancora aperto, chiede chiusura TARGET. 
+	  In ogni caso, chiude prima di procedere.
+	  Se studente annulla interrompe consegna.
+	*- Chiude applicazioni (compreso explorer)
+	  
+	*- copia locale in TEMP (per evitare perdita progetto)
+	*- Copia cartella progetto (aggiunge timestamp e nomecomputer)
+	*- usa filtri definiti in config durante la copia (ad esempio, cartelle "bin" e "obj")
+	*- Elimina cartella progetto
+	*- Svuota il cestino
+	*- Elimina cartelle specificate in postclearfolders
+	- ??Elimina link consegna
+	   (considera che cartella progetto è già stata eliminata)
+	*- TaskCompleted: UI->se errore, invita studente a chiamare il professore.
+
+------------------------------- NON NECESSARIO --------------------------------------------------
+RIVEDERE I PERCORSI (NELLA CLASSE CONFIG DEVONO ESSERE ASSOLUTI?)
+ATTUALMENTE, IL PROGRAMMA LAVORA IN MODO DIVERSO CON IMPOSTAZIONI DI DEFAULT VS IMPOSTAZIONI CARICATE!
+(VEDI SOPRATTUTTO: ASSIGNMENT e ASSIGNMENTDOC)
+
+(probabilmente non necessaria)
+Ipotesi: introdurre variabile dinamica $ASSIGNMENT
+in modo da poterla utilizzare negli altri path e poter scrivere tipo:
+	completedAssignmentFolder=$assignment\..\Elaborati
+	projectPattern = $assignment\Rinominami
+
